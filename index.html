@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-  <title>Office VR Digital Twin - Ultra-Realistic Workspace</title>
+  <title>Office VR Digital Twin - Meta Quest 2 Optimized</title>
 
   <!-- A-Frame WebXR Engine -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
@@ -16,17 +16,17 @@
 </head>
 <body>
 
-  <!-- 2D HUD / Instructions & Control Center -->
+  <!-- 2D HUD / Instructions & Control Center (Auto-hidden in VR) -->
   <div id="hud-overlay">
     <div class="hud-card">
       <div class="hud-header">
-        <span class="hud-badge">Photorealistic WebXR</span>
+        <span class="hud-badge">Meta Quest 2 &bull; WebXR</span>
         <h1>Office Digital Twin</h1>
         <div class="hud-sub">Virtual 3D Workspace &bull; Văn phòng làm việc thực tế ảo</div>
       </div>
 
       <p class="hud-desc">
-        Experience your office with PBR normal-mapped surfaces, soft contact shadows, 3D spatial audio, working light switches, and a 360° Real Video Immersion Dome.
+        Optimized for <strong>Meta Quest 2</strong>: Walk smoothly with the <strong>Left Thumbstick</strong>, snap turn with the <strong>Right Thumbstick</strong>, and press <strong>A/B/X/Y</strong> to toggle the In-VR Escape Menu.
       </p>
 
       <!-- Immersion Mode Switcher -->
@@ -64,16 +64,12 @@
       <!-- Device Controls Reference -->
       <div class="hud-controls">
         <div class="control-item">
+          <span class="key-tag">Quest 2 Controller</span>
+          <span><strong>Left Stick:</strong> Walk &bull; <strong>Right Stick:</strong> Snap Turn &bull; <strong>A/B/X/Y:</strong> In-VR Menu</span>
+        </div>
+        <div class="control-item">
           <span class="key-tag">Desktop</span>
-          <span>Click &amp; drag mouse &bull; <strong>WASD</strong> to walk &bull; Click light switch, fans, microwave</span>
-        </div>
-        <div class="control-item">
-          <span class="key-tag">Mobile</span>
-          <span>Turn device for 360&deg; look &bull; Tap glowing rings to teleport &bull; Tap objects</span>
-        </div>
-        <div class="control-item">
-          <span class="key-tag">VR Headset</span>
-          <span>Click <strong>Enter VR</strong> &bull; Point laser or pinch with hand tracking to click</span>
+          <span><strong>WASD</strong> to walk &bull; Mouse drag to look &bull; Click objects</span>
         </div>
       </div>
 
@@ -99,10 +95,10 @@
     </div>
   </div>
 
-  <!-- A-Frame WebXR Scene with PBR Tone Mapping & PCF Soft Shadows -->
+  <!-- A-Frame WebXR Scene with Quest 2 Hardware Foveation & Mobile GPU Anti-Freeze -->
   <a-scene
     realistic-renderer
-    renderer="antialias: true; colorManagement: true; highRefreshRate: true; foveationLevel: 1; precision: high"
+    renderer="antialias: false; colorManagement: true; highRefreshRate: true; foveationLevel: 3; precision: medium"
     xr-mode-ui="enabled: true"
     device-orientation-permission-ui="enabled: true"
     cursor="rayOrigin: mouse"
@@ -134,14 +130,20 @@
         src="office-tour.mp4"
         preload="auto"
         loop="true"
+        muted="true"
         crossorigin="anonymous"
         playsinline
         webkit-playsinline>
       </video>
     </a-assets>
 
-    <!-- Camera Rig & Player Controller -->
-    <a-entity id="rig" position="0 0 4.2" rotation="0 0 0">
+    <!-- Camera Rig with Quest 2 Thumbstick Locomotion & Snap Turn -->
+    <a-entity
+      id="rig"
+      position="0 0 4.2"
+      rotation="0 0 0"
+      quest-locomotion="speed: 2.2; snapAngle: 45">
+      
       <a-camera id="camera" position="0 1.6 0" look-controls="pointerLockEnabled: false" wasd-controls="acceleration: 18" spatial-listener>
         <a-cursor
           id="camera-cursor"
@@ -156,32 +158,83 @@
         </a-cursor>
       </a-camera>
 
-      <!-- 6DoF Laser Controllers -->
-      <a-entity id="leftController" laser-controls="hand: left" raycaster="objects: .clickable; lineColor: #FF2A85; lineOpacity: 0.7"></a-entity>
-      <a-entity id="rightController" laser-controls="hand: right" raycaster="objects: .clickable; lineColor: #00F0FF; lineOpacity: 0.7"></a-entity>
-      <!-- Hand Tracking Support -->
+      <!-- 6DoF Laser Controllers with Pointer and Trigger Rays -->
+      <a-entity id="leftController" laser-controls="hand: left" raycaster="objects: .clickable; lineColor: #FF2A85; lineOpacity: 0.8"></a-entity>
+      <a-entity id="rightController" laser-controls="hand: right" raycaster="objects: .clickable; lineColor: #00F0FF; lineOpacity: 0.8"></a-entity>
       <a-entity hand-tracking-controls="hand: left"></a-entity>
       <a-entity hand-tracking-controls="hand: right"></a-entity>
     </a-entity>
 
     <!-- ============================================== -->
-    <!-- LIGHTING & SHADOW SETUP                        -->
+    <!-- IN-VR FLOATING ESCAPE & CONTROL MENU           -->
+    <!-- (Press A/B/X/Y or In-World Button to Toggle)   -->
     <!-- ============================================== -->
-    <a-entity id="ambient-light" light="type: ambient; color: #ffffff; intensity: 0.72"></a-entity>
-    <a-entity
-      id="sun-light"
-      light="type: directional; color: #fff8e7; intensity: 0.95; castShadow: true; shadowMapHeight: 2048; shadowMapWidth: 2048; shadowBias: -0.0001"
-      position="8 6 2">
+    <a-entity id="in-vr-hud" visible="false" position="0 1.4 3.0">
+      <!-- Background Glassmorphic Plate -->
+      <a-box width="1.6" height="1.0" depth="0.04" material="color: #0f172a; opacity: 0.94"></a-box>
+      <a-text value="OFFICE VR MENU" align="center" position="0 0.38 0.03" width="2.0" color="#38bdf8"></a-text>
+
+      <!-- 🚪 EXIT VR BUTTON (Prominent Red Button) -->
+      <a-box
+        class="clickable"
+        position="0 0.18 0.03"
+        width="1.3"
+        height="0.22"
+        depth="0.04"
+        material="color: #dc2626; roughness: 0.3"
+        onclick="exitVrSafely()">
+      </a-box>
+      <a-text value="🚪 EXIT VR / THOAT RA BROWSER" align="center" position="0 0.18 0.06" width="1.5" color="#ffffff"></a-text>
+
+      <!-- 📍 Reset Position Button -->
+      <a-box
+        class="clickable"
+        position="-0.38 -0.08 0.03"
+        width="0.58"
+        height="0.18"
+        depth="0.04"
+        material="color: #0284c7"
+        onclick="teleportPlayer({x: 0, y: 0, z: 4.2}, 0, 'Entrance')">
+      </a-box>
+      <a-text value="📍 RESET POS" align="center" position="-0.38 -0.08 0.06" width="1.3" color="#ffffff"></a-text>
+
+      <!-- ☀️ Cycle Lighting Button -->
+      <a-box
+        class="clickable"
+        position="0.38 -0.08 0.03"
+        width="0.58"
+        height="0.18"
+        depth="0.04"
+        material="color: #d97706"
+        onclick="const modes = ['day', 'sunset', 'night']; const next = modes[(modes.indexOf(lightingManager.currentMode) + 1) % 3]; lightingManager.setMode(next);">
+      </a-box>
+      <a-text value="☀️ LIGHTING" align="center" position="0.38 -0.08 0.06" width="1.3" color="#ffffff"></a-text>
+
+      <!-- 🎥 Toggle 360 Video / 3D Twin Button -->
+      <a-box
+        class="clickable"
+        position="0 -0.3 0.03"
+        width="1.3"
+        height="0.16"
+        depth="0.04"
+        material="color: #10b981"
+        onclick="immersionManager.switchMode(immersionManager.currentMode === '3d' ? '360video' : '3d')">
+      </a-box>
+      <a-text value="🎥 TOGGLE 360 VIDEO / 3D TWIN" align="center" position="0 -0.3 0.06" width="1.3" color="#ffffff"></a-text>
+
+      <a-text value="Press A / B / X / Y on controller to close" align="center" position="0 -0.44 0.03" width="1.1" color="#94a3b8"></a-text>
     </a-entity>
+
+    <!-- ============================================== -->
+    <!-- LIGHTING & SHADOW SETUP (Mobile GPU Optimized) -->
+    <!-- ============================================== -->
+    <a-entity id="ambient-light" light="type: ambient; color: #ffffff; intensity: 0.75"></a-entity>
+    <a-entity id="sun-light" light="type: directional; color: #fff8e7; intensity: 0.95" position="8 6 2"></a-entity>
 
     <!-- ============================================== -->
     <!-- MODE A: HIGH-FIDELITY 3D DIGITAL TWIN          -->
     <!-- ============================================== -->
     <a-entity id="office-3d-twin">
-
-      <!-- ========================================== -->
-      <!-- ARCHITECTURAL ROOM ENVELOPE (PBR TILE)     -->
-      <!-- ========================================== -->
 
       <!-- Floor (Glossy porcelain ceramic tiles with normal map) -->
       <a-plane
@@ -189,8 +242,7 @@
         rotation="-90 0 0"
         width="8"
         height="11"
-        material="src: #tex-floor; normalMap: #tex-floor-normal; normalScale: 0.6 0.6; repeat: 4 5.5; roughness: 0.22; metalness: 0.12"
-        shadow="receive: true">
+        material="src: #tex-floor; normalMap: #tex-floor-normal; normalScale: 0.6 0.6; repeat: 4 5.5; roughness: 0.22; metalness: 0.12">
       </a-plane>
 
       <!-- Ceiling (Acoustic suspended T-bar grid) -->
@@ -202,13 +254,13 @@
         material="src: #tex-ceiling; repeat: 8 11; roughness: 0.95">
       </a-plane>
 
-      <!-- Fluorescent Troffers with dual illuminated tubes behind diffusers -->
+      <!-- Fluorescent Troffers with dual illuminated tubes -->
       <!-- Troffer 1 -->
       <a-entity position="-1.8 2.88 -3.0">
         <a-box width="0.65" height="0.04" depth="1.25" material="color: #cbd5e1; roughness: 0.4"></a-box>
         <a-cylinder class="ceiling-troffer-tube" position="-0.15 -0.015 0" rotation="90 0 0" radius="0.018" height="1.15" material="color: #ffffff; emissive: #ffffff; emissiveIntensity: 0.95"></a-cylinder>
         <a-cylinder class="ceiling-troffer-tube" position="0.15 -0.015 0" rotation="90 0 0" radius="0.018" height="1.15" material="color: #ffffff; emissive: #ffffff; emissiveIntensity: 0.95"></a-cylinder>
-        <a-entity class="ceiling-light-bulb" light="type: point; color: #ffffff; intensity: 0.55; distance: 5.5; decay: 1.5; castShadow: true" position="0 -0.15 0"></a-entity>
+        <a-entity class="ceiling-light-bulb" light="type: point; color: #ffffff; intensity: 0.55; distance: 5.5; decay: 1.5" position="0 -0.15 0"></a-entity>
       </a-entity>
 
       <!-- Troffer 2 -->
@@ -216,7 +268,7 @@
         <a-box width="0.65" height="0.04" depth="1.25" material="color: #cbd5e1; roughness: 0.4"></a-box>
         <a-cylinder class="ceiling-troffer-tube" position="-0.15 -0.015 0" rotation="90 0 0" radius="0.018" height="1.15" material="color: #ffffff; emissive: #ffffff; emissiveIntensity: 0.95"></a-cylinder>
         <a-cylinder class="ceiling-troffer-tube" position="0.15 -0.015 0" rotation="90 0 0" radius="0.018" height="1.15" material="color: #ffffff; emissive: #ffffff; emissiveIntensity: 0.95"></a-cylinder>
-        <a-entity class="ceiling-light-bulb" light="type: point; color: #ffffff; intensity: 0.55; distance: 5.5; decay: 1.5; castShadow: true" position="0 -0.15 0"></a-entity>
+        <a-entity class="ceiling-light-bulb" light="type: point; color: #ffffff; intensity: 0.55; distance: 5.5; decay: 1.5" position="0 -0.15 0"></a-entity>
       </a-entity>
 
       <!-- Troffer 3 -->
@@ -281,20 +333,24 @@
         <a-plane position="-0.38 0.3 -0.04" rotation="0 180 0" width="0.45" height="1.1" material="color: #dbeafe; opacity: 0.6; roughness: 0.3; transparent: true"></a-plane>
         <a-plane position="0.38 0.3 -0.04" rotation="0 180 0" width="0.45" height="1.1" material="color: #dbeafe; opacity: 0.6; roughness: 0.3; transparent: true"></a-plane>
         <a-cylinder position="0.7 0 -0.05" radius="0.02" height="0.2" material="color: #64748b; metalness: 0.8"></a-cylinder>
+
+        <!-- 🚪 IN-WORLD EMERGENCY EXIT SIGN (Clickable to Exit VR) -->
+        <a-entity class="clickable" position="0 1.35 -0.08" onclick="exitVrSafely()">
+          <a-box width="0.55" height="0.18" depth="0.04" material="color: #15803d; emissive: #16a34a; emissiveIntensity: 0.6"></a-box>
+          <a-text value="EXIT VR" align="center" position="0 0 0.03" rotation="0 180 0" width="1.6" color="#ffffff"></a-text>
+        </a-entity>
       </a-entity>
 
       <!-- Wall Clock -->
       <a-circle position="1.6 2.2 5.46" rotation="0 180 0" radius="0.28" material="src: #tex-clock; transparent: true"></a-circle>
 
-      <!-- Working Wall Light Switch by the Door (Clickable!) -->
+      <!-- Working Wall Light Switch by the Door -->
       <a-entity
         class="clickable"
         light-switch
         position="1.0 1.3 5.46"
         rotation="0 180 0">
-        <!-- Switch faceplate -->
         <a-box width="0.09" height="0.13" depth="0.015" material="color: #ffffff; roughness: 0.2"></a-box>
-        <!-- Rocker button -->
         <a-box class="switch-rocker" position="0 0 0.012" rotation="10 0 0" width="0.045" height="0.06" depth="0.01" material="color: #e2e8f0"></a-box>
         <a-text value="LIGHTS" align="center" position="0 -0.055 0.015" width="0.4" color="#64748b"></a-text>
       </a-entity>
@@ -310,7 +366,7 @@
       <!-- ========================================== -->
       <!-- 1. CENTRAL COLLABORATIVE MEETING TABLE     -->
       <!-- ========================================== -->
-      <!-- Soft Baked Contact Shadow under Table -->
+      <!-- Soft Baked Contact Shadow under Table (0 GPU Overhead) -->
       <a-plane
         position="0 0.005 -0.4"
         rotation="-90 0 0"
@@ -326,13 +382,11 @@
           width="1.3"
           height="0.05"
           depth="3.4"
-          material="src: #tex-wood; normalMap: #tex-wood-normal; normalScale: 0.5 0.5; repeat: 1 3; roughness: 0.35"
-          shadow="cast: true; receive: true">
+          material="src: #tex-wood; normalMap: #tex-wood-normal; normalScale: 0.5 0.5; repeat: 1 3; roughness: 0.35">
         </a-box>
-        <!-- Center Brushed Aluminum Cable Grommet / Power Hub -->
         <a-box position="0 0.768 0" width="0.18" height="0.004" depth="0.45" material="color: #94a3b8; metalness: 0.8; roughness: 0.3"></a-box>
 
-        <!-- Chrome Tubular Legs with Glides -->
+        <!-- Chrome Tubular Legs -->
         <a-cylinder position="-0.55 0.36 -1.5" radius="0.035" height="0.72" material="color: #cbd5e1; metalness: 0.9; roughness: 0.2"></a-cylinder>
         <a-cylinder position="0.55 0.36 -1.5" radius="0.035" height="0.72" material="color: #cbd5e1; metalness: 0.9; roughness: 0.2"></a-cylinder>
         <a-cylinder position="-0.55 0.36 1.5" radius="0.035" height="0.72" material="color: #cbd5e1; metalness: 0.9; roughness: 0.2"></a-cylinder>
@@ -347,16 +401,13 @@
           <a-cone position="-0.04 0.48 -0.03" radius-bottom="0.05" radius-top="0.18" height="0.36" material="color: #e0b686; roughness: 0.95"></a-cone>
         </a-entity>
 
-        <!-- Smart Bluetooth Desk Speaker (Clickable for Lo-Fi Music!) -->
+        <!-- Smart Bluetooth Desk Speaker (Clickable for Lo-Fi Beats) -->
         <a-entity
           class="clickable"
           desk-speaker
           position="0.25 0.76 -0.3">
-          <!-- Cylindrical fabric body -->
           <a-cylinder position="0 0.08 0" radius="0.055" height="0.16" material="color: #1e293b; roughness: 0.7"></a-cylinder>
-          <!-- Top metallic cap -->
           <a-cylinder position="0 0.162 0" radius="0.056" height="0.005" material="color: #475569; metalness: 0.8"></a-cylinder>
-          <!-- Glowing Pulsating LED Ring -->
           <a-torus class="speaker-led" position="0 0.164 0" rotation="90 0 0" radius="0.045" radius-tubular="0.004" material="color: #334155; emissive: #38bdf8; emissiveIntensity: 0.2"></a-torus>
           <a-text value="Focus Radio 🎵" align="center" position="0 0.24 0" width="0.8" color="#38bdf8"></a-text>
         </a-entity>
@@ -368,15 +419,14 @@
           <a-plane position="0 0.12 -0.104" rotation="-20 0 0" width="0.29" height="0.19" material="src: #tex-screen-code; emissive: #ffffff; emissiveIntensity: 0.7"></a-plane>
         </a-entity>
 
-        <!-- Accessories: Mugs with Coffee surface & Translucent Water Carafe -->
+        <!-- Accessories: Mugs & Translucent Water Carafe -->
         <a-entity position="-0.25 0.76 -0.6">
           <a-cylinder position="0 0.05 0" radius="0.042" height="0.1" material="color: #ffffff; roughness: 0.2"></a-cylinder>
           <a-circle position="0 0.09 0" rotation="-90 0 0" radius="0.038" material="color: #3e2723; roughness: 0.1"></a-circle>
         </a-entity>
         <a-cylinder position="0.2 0.85 -0.8" radius="0.07" height="0.22" material="color: #bae6fd; opacity: 0.65; roughness: 0.1; metalness: 0.8; transparent: true"></a-cylinder>
 
-        <!-- Detailed Cantilever Conference Chairs (Royal Blue Mesh Fabric) -->
-        <!-- Left Side Chairs -->
+        <!-- Cantilever Conference Chairs (Royal Blue Mesh Fabric) -->
         <a-entity position="-0.92 0 -1.0" rotation="0 90 0">
           <a-box position="0 0.45 0" width="0.48" height="0.07" depth="0.46" material="src: #tex-chair-fabric; repeat: 4 4; roughness: 0.8"></a-box>
           <a-box position="0 0.76 -0.21" width="0.46" height="0.44" depth="0.04" material="src: #tex-chair-fabric; repeat: 4 4; roughness: 0.8"></a-box>
@@ -398,7 +448,6 @@
           <a-cylinder position="0.2 0.22 0" radius="0.018" height="0.44" material="color: #cbd5e1; metalness: 0.9"></a-cylinder>
         </a-entity>
 
-        <!-- Right Side Chairs -->
         <a-entity position="0.92 0 -1.0" rotation="0 -90 0">
           <a-box position="0 0.45 0" width="0.48" height="0.07" depth="0.46" material="src: #tex-chair-fabric; repeat: 4 4; roughness: 0.8"></a-box>
           <a-box position="0 0.76 -0.21" width="0.46" height="0.44" depth="0.04" material="src: #tex-chair-fabric; repeat: 4 4; roughness: 0.8"></a-box>
@@ -417,7 +466,6 @@
       <!-- ========================================== -->
       <!-- 2. LEAD DEVELOPER WORKSTATION (Foreground) -->
       <!-- ========================================== -->
-      <!-- Soft Baked Contact Shadow under Desk -->
       <a-plane
         position="-2.2 0.005 3.2"
         rotation="-90 40 0"
@@ -427,21 +475,19 @@
       </a-plane>
 
       <a-entity id="dev-workstation" position="-2.2 0 3.2" rotation="0 130 0">
-        <!-- Wood Desk with Normal Map -->
         <a-box
           position="0 0.74 0"
           width="1.6"
           height="0.05"
           depth="0.8"
-          material="src: #tex-wood; normalMap: #tex-wood-normal; normalScale: 0.5 0.5; roughness: 0.35"
-          shadow="cast: true; receive: true">
+          material="src: #tex-wood; normalMap: #tex-wood-normal; normalScale: 0.5 0.5; roughness: 0.35">
         </a-box>
         <a-cylinder position="-0.7 0.36 -0.3" radius="0.03" height="0.72" material="color: #334155"></a-cylinder>
         <a-cylinder position="0.7 0.36 -0.3" radius="0.03" height="0.72" material="color: #334155"></a-cylinder>
         <a-cylinder position="-0.7 0.36 0.3" radius="0.03" height="0.72" material="color: #334155"></a-cylinder>
         <a-cylinder position="0.7 0.36 0.3" radius="0.03" height="0.72" material="color: #334155"></a-cylinder>
 
-        <!-- Articulated Dual-Monitor Arm -->
+        <!-- Articulated Monitor Arms -->
         <a-cylinder position="0 0.95 -0.28" radius="0.02" height="0.4" material="color: #0f172a; metalness: 0.8"></a-cylinder>
         <a-cylinder position="-0.15 1.15 -0.25" rotation="0 30 90" radius="0.015" height="0.3" material="color: #1e293b"></a-cylinder>
         <a-cylinder position="0.18 1.18 -0.22" rotation="0 -30 90" radius="0.015" height="0.3" material="color: #1e293b"></a-cylinder>
@@ -457,11 +503,10 @@
             height="0.4"
             material="src: #tex-screen-code; emissive: #ffffff; emissiveIntensity: 0.75">
           </a-plane>
-          <!-- Power LED -->
           <a-sphere position="0.33 -0.2 0.015" radius="0.005" material="color: #38bdf8; emissive: #38bdf8; emissiveIntensity: 1"></a-sphere>
         </a-entity>
 
-        <!-- Secondary Vertical Monitor (Rotated Portrait - Clickable) -->
+        <!-- Secondary Vertical Monitor (Clickable) -->
         <a-entity position="0.42 1.18 -0.15" rotation="0 -18 0">
           <a-box width="0.36" height="0.56" depth="0.025" material="color: #0f172a; metalness: 0.8; roughness: 0.2"></a-box>
           <a-plane
@@ -476,11 +521,8 @@
 
         <!-- Custom PC Tower Under Desk with Glowing RGB Fans -->
         <a-entity position="-0.58 0.28 0.05">
-          <!-- Main Chassis Body -->
           <a-box width="0.22" height="0.5" depth="0.46" material="color: #0b0f19; metalness: 0.6"></a-box>
-          <!-- Front Panel with Glowing Intake Fans -->
           <a-plane position="0 0 0.232" width="0.22" height="0.5" material="src: #tex-pc-tower; emissive: #38bdf8; emissiveIntensity: 0.5"></a-plane>
-          <!-- Glass Side Panel with Internal Glow -->
           <a-plane position="0.112 0 0" rotation="0 90 0" width="0.44" height="0.48" material="color: #00F0FF; opacity: 0.25; transparent: true; roughness: 0.1"></a-plane>
         </a-entity>
 
@@ -490,7 +532,7 @@
           <a-plane position="0 0.11 -0.11" rotation="-30 0 0" width="0.28" height="0.18" material="src: #tex-screen-code; emissive: #ffffff; emissiveIntensity: 0.5"></a-plane>
         </a-entity>
 
-        <!-- Keyboard with individual key sculpted look & Mouse -->
+        <!-- Keyboard & Mouse -->
         <a-box position="0 0.77 0.15" width="0.46" height="0.015" depth="0.15" material="color: #1e293b"></a-box>
         <a-box position="0.34 0.77 0.15" width="0.09" height="0.018" depth="0.13" material="color: #0f172a"></a-box>
 
@@ -498,11 +540,8 @@
         <a-entity position="0 0 0.68" rotation="0 180 0">
           <a-box position="0 0.5 0" width="0.5" height="0.08" depth="0.5" material="color: #0f172a; roughness: 0.8"></a-box>
           <a-box position="0 0.88 -0.22" width="0.46" height="0.6" depth="0.04" material="color: #1e293b; roughness: 0.9"></a-box>
-          <!-- Headrest -->
           <a-box position="0 1.25 -0.22" width="0.28" height="0.14" depth="0.05" material="color: #0f172a"></a-box>
-          <!-- Pneumatic Gas Cylinder -->
           <a-cylinder position="0 0.25 0" radius="0.035" height="0.45" material="color: #cbd5e1; metalness: 0.9"></a-cylinder>
-          <!-- 5-Star Caster Base -->
           <a-torus position="0 0.04 0" rotation="90 0 0" radius="0.28" radius-tubular="0.02" material="color: #334155; metalness: 0.8"></a-torus>
         </a-entity>
       </a-entity>
@@ -511,7 +550,6 @@
       <!-- 3. PANTRY & BREAK CORNER (West Wall)       -->
       <!-- ========================================== -->
       <a-entity id="pantry-station" position="-3.5 0 -3.2" rotation="0 90 0">
-        <!-- Refrigerator (Metallic 2-Door) -->
         <a-box position="0 0.8 0" width="0.65" height="1.6" depth="0.65" material="color: #cbd5e1; metalness: 0.5; roughness: 0.25"></a-box>
         <a-box position="0 0.95 0.33" width="0.64" height="0.01" depth="0.01" material="color: #64748b"></a-box>
         <a-box position="-0.26 1.15 0.35" width="0.03" height="0.25" depth="0.03" material="color: #475569; metalness: 0.8"></a-box>
@@ -563,7 +601,7 @@
           <a-plane class="clickable" interactive-screen position="0 0 0.016" width="0.58" height="0.36" material="src: #tex-snapshot; emissive: #ffffff; emissiveIntensity: 0.7"></a-plane>
         </a-entity>
 
-        <!-- AUTHENTIC VIETNAM DESK FLAG (Video 00:19) -->
+        <!-- Authentic Vietnam Desk Flag (Video 00:19) -->
         <a-entity position="0.65 0.76 -0.15">
           <a-cylinder position="0 0.01 0" radius="0.04" height="0.02" material="color: #94a3b8; metalness: 0.95"></a-cylinder>
           <a-cylinder position="0 0.16 0" radius="0.005" height="0.3" material="color: #cbd5e1; metalness: 0.95"></a-cylinder>
@@ -584,7 +622,6 @@
       <a-entity id="office-plant" position="2.4 0 0.3">
         <a-cylinder position="0 0.25 0" radius-bottom="0.18" radius-top="0.24" height="0.5" material="color: #e2e8f0; roughness: 0.3"></a-cylinder>
         <a-circle position="0 0.49 0" rotation="-90 0 0" radius="0.23" material="color: #3f2e18; roughness: 0.95"></a-circle>
-        <!-- Organic Arching Stems & Glossy Leaves -->
         <a-cylinder position="0 0.7 0" radius="0.015" height="0.5" rotation="10 0 15" material="color: #15803d"></a-cylinder>
         <a-sphere position="0.08 0.75 0.05" radius="0.08" scale="0.4 1 0.6" rotation="20 40 10" material="color: #166534; roughness: 0.2"></a-sphere>
         <a-sphere position="-0.06 0.85 -0.04" radius="0.09" scale="0.4 1 0.6" rotation="-15 -30 10" material="color: #15803d; roughness: 0.2"></a-sphere>
@@ -681,7 +718,7 @@
 
     <!-- ============================================== -->
     <!-- MODE B: 360° REAL OFFICE VIDEO IMMERSION DOME  -->
-    <!-- (1:1 Photographic Presence via your video)     -->
+    <!-- (With Prominent In-VR Exit & Return Controls)  -->
     <!-- ============================================== -->
     <a-entity id="office-360-dome" visible="false">
       <!-- Curved 360 Panoramic Video Cylinder -->
@@ -694,36 +731,48 @@
         material="src: #office-video; shader: flat">
       </a-cylinder>
 
-      <!-- Floor & Ceiling Caps for complete 360 seal -->
       <a-circle position="0 0.01 0" rotation="-90 0 0" radius="4.6" material="src: #tex-floor; repeat: 4 4; roughness: 0.3"></a-circle>
       <a-circle position="0 4.3 0" rotation="90 0 0" radius="4.6" material="src: #tex-ceiling; repeat: 6 6"></a-circle>
 
       <!-- Floating 3D Control Console inside the 360 Dome -->
-      <a-entity position="0 1.2 -1.8" rotation="0 0 0">
-        <a-box width="1.6" height="0.4" depth="0.04" material="color: #0f172a; opacity: 0.9"></a-box>
-        <!-- Return to 3D Twin button -->
+      <a-entity position="0 1.3 -1.8" rotation="0 0 0">
+        <a-box width="1.8" height="0.65" depth="0.04" material="color: #0f172a; opacity: 0.94"></a-box>
+
+        <!-- 🏢 Return to 3D Twin button -->
         <a-box
           class="clickable"
-          position="-0.45 0 0.03"
-          width="0.45"
-          height="0.18"
+          position="-0.48 0.12 0.03"
+          width="0.75"
+          height="0.2"
           depth="0.04"
           material="color: #0284c7"
           onclick="immersionManager.switchMode('3d')">
         </a-box>
-        <a-text value="🏢 RETURN TO 3D TWIN" align="center" position="-0.45 0 0.06" width="1.1" color="#ffffff"></a-text>
+        <a-text value="🏢 3D VIRTUAL TWIN" align="center" position="-0.48 0.12 0.06" width="1.2" color="#ffffff"></a-text>
 
-        <!-- Toggle Video Audio Button -->
+        <!-- 🔊 Toggle Sound Button -->
         <a-box
           class="clickable"
-          position="0.45 0 0.03"
-          width="0.45"
-          height="0.18"
+          position="0.48 0.12 0.03"
+          width="0.75"
+          height="0.2"
           depth="0.04"
           material="color: #10b981"
           onclick="const v = document.querySelector('#office-video'); v.muted = !v.muted;">
         </a-box>
-        <a-text value="🔊 TOGGLE SOUND" align="center" position="0.45 0 0.06" width="1.1" color="#ffffff"></a-text>
+        <a-text value="🔊 TOGGLE SOUND" align="center" position="0.48 0.12 0.06" width="1.2" color="#ffffff"></a-text>
+
+        <!-- 🚪 IN-VR EXIT BUTTON (Red, Prominent, Instant Exit to Browser) -->
+        <a-box
+          class="clickable"
+          position="0 -0.16 0.03"
+          width="1.6"
+          height="0.22"
+          depth="0.04"
+          material="color: #dc2626"
+          onclick="exitVrSafely()">
+        </a-box>
+        <a-text value="🚪 EXIT VR / THOAT RA BROWSER" align="center" position="0 -0.16 0.06" width="1.6" color="#ffffff"></a-text>
       </a-entity>
     </a-entity>
 
